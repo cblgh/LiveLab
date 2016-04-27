@@ -53,15 +53,18 @@ var LiveLabOsc = require('./LiveLabOsc');
             var d = document.createElement('div');
             d.className = 'videoContainer';
             d.id = 'container_' + webrtc.getDomId(peer);
+
             d.appendChild(video);
+            video.id = 'video_' + peer.id;
+            video.onclick = function () {
+                showWindow.document.getElementById('showVideo').src = document.getElementById('video_' + peer.id).src;
+            };
+
             var vol = document.createElement('div');
             vol.id = 'volume_' + peer.id;
             vol.className = 'volume_bar';
-            video.onclick = function () {
-                video.style.width = video.videoWidth + 'px';
-                video.style.height = video.videoHeight + 'px';
-            };
             d.appendChild(vol);
+
             remotes.appendChild(d);
         }
     });
