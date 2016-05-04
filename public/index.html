@@ -86,17 +86,35 @@
 
         var showVideo;
 
+        var isFirefox = typeof InstallTrigger !== 'undefined';
+        console.log('firefox: ' + isFirefox);
+
+        var isChrome = !!window.chrome && !!window.chrome.webstore;
+        console.log('chrome: ' + isChrome);
+
         function newWindow() {
             showWindow = window.open("https://localhost:8000/show.html", "Show", 'popup');
             showVideo = showWindow.document.getElementById('showVideo');
         }
 
         function enterFull() {
-            showWindow.document.getElementById('showVideo').webkitRequestFullScreen();
+            showWindow.focus();
+            if (isFirefox == true) {
+                showWindow.document.getElementById('showVideo').mozRequestFullScreen();
+            }
+            if (isChrome == true) {
+                showWindow.document.getElementById('showVideo').webkitRequestFullScreen();
+            }
         }
 
         function exitFull() {
-            showWindow.document.getElementById('showVideo').webkitExitFullscreen();
+            showWindow.focus();
+            if (isFirefox == true) {
+                showWindow.document.getElementById('showVideo').mozCancelFullscreen();
+            }
+            if (isChrome == true) {
+                showWindow.document.getElementById('showVideo').webkitExitFullscreen();
+            }
         }
 
     </script>
