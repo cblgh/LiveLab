@@ -49,8 +49,8 @@
             <form>
 
                 <input type="button" onClick="newWindow()" value="window">
-                <input type="button" onClick="showWindow.document.getElementById('showVideo').webkitRequestFullScreen()" value="Enter Full">
-                <input type="button" onClick="showWindow.document.getElementById('showVideo').webkitExitFullscreen()" value="Exit Full">
+                <input type="button" onClick="enterFull()" value="Enter Full">
+                <input type="button" onClick="exitFull()" value="Exit Full">
 
             </form>
         </center>
@@ -84,8 +84,19 @@
 
         var showWindow;
 
+        var showVideo;
+
         function newWindow() {
-            showWindow = window.open("https://localhost:8000/show.html", "Show");
+            showWindow = window.open("https://localhost:8000/show.html", "Show", 'popup');
+            showVideo = showWindow.document.getElementById('showVideo');
+        }
+
+        function enterFull() {
+            showWindow.document.getElementById('showVideo').webkitRequestFullScreen();
+        }
+
+        function exitFull() {
+            showWindow.document.getElementById('showVideo').webkitExitFullscreen();
         }
 
     </script>
