@@ -238,6 +238,7 @@ function PeerMediaContainer(id, video, webrtc, dashboard){
 	    video.id = 'video_' + id;
 	    video.volume = 0.0;
 	    this.createPeerWindow();
+      this.webrtc = webrtc;
 	 }
 	 
     this.createAudioSelector();
@@ -320,14 +321,35 @@ PeerMediaContainer.prototype.createVolumeControl = function() {
 
 }
 /* for local stream only; create video controls once video has been added */
-PeerMediaContainer.prototype.addVideoControls = function(){
+PeerMediaContainer.prototype.addVideoControls = function(webrtc){
 	if (!('video' in this)){
-		this.video = this.videoDiv.getElementsByTagName('video')[0];
-		console.log(this.video);
-		this.video.volume = 0.0;
+		 this.video = this.videoDiv.getElementsByTagName('video')[0];
+    this.video.volume = 0.0;
 		this.createPeerWindow();
 	}
+  this.webrtc = webrtc;
 };
+
+PeerMediaContainer.prototype.removeLocalVideo = function(){
+  while (this.videoDiv.hasChildNodes()) {
+    this.videoDiv.removeChild(this.videoDiv.lastChild);
+  }
+};
+
+PeerMediaContainer.prototype.refreshLocalVideo = function(config){
+  this.removeLocalVideo();
+  this.webrtc.refreshLocalVideo(config);
+};
+
+PeerMediaContainer.prototype.updatedLocalVideo = function(){
+  console.log("UPDATING LOCAL VIDEO");
+  console.log(this.videoDiv);
+  this.video = this.videoDiv.getElementsByTagName('video')[0];
+  console.log(this.video);
+/*  console.log("UPDATING LOCAL VIDEO");
+  this.video = this.videoDiv.getElementsByTagName('video')[0];
+    this.video.volume = 0.0;*/
+}
 
 PeerMediaContainer.prototype.destroy = function(){
 	this.dashboard.removeChild(this.mediaContainer);
@@ -451,9 +473,50 @@ function successCallback(stream) {
 module.exports = PeerMediaContainer;
 
 },{}],4:[function(require,module,exports){
-function SessionControl(localVideo, container){
+var echoOn =  {
+      audio: {
+        optional: [
+        {googAutoGainControl: true}, 
+        {googAutoGainControl2: true}, 
+        {googEchoCancellation: true},
+        {googEchoCancellation2: true},
+        {googNoiseSuppression: true},
+        {googNoiseSuppression2: true},
+        {googHighpassFilter: true},
+        {googTypingNoiseDetection: true},
+        {googAudioMirroring: true}
+        ]
+      },
+      video: {
+        optional: [
+        ]
+      }
+    };
+
+var echoOff = {
+      audio: {
+        optional: [
+        {googAutoGainControl: true}, 
+        {googAutoGainControl2: true}, 
+        {googEchoCancellation: true},
+        {googEchoCancellation2: true},
+        {googNoiseSuppression: true},
+        {googNoiseSuppression2: true},
+        {googHighpassFilter: true},
+        {googTypingNoiseDetection: true},
+        {googAudioMirroring: true}
+        ]
+      },
+      video: {
+        optional: [
+        ]
+      }
+    };
+
+function SessionControl(localVideo, container, localMedia){
 	this.video = localVideo;
 	this.createControlUI(container);
+    this.localMedia = localMedia;
 }
 
 SessionControl.prototype.createControlUI = function(container){
@@ -509,7 +572,27 @@ SessionControl.prototype.createControlUI = function(container){
     showFull.appendChild(fullText);
     sessionDiv.appendChild(showFull);
     container.appendChild(sessionDiv);
+
+/* Echo Cancellation Checkbox */
+    var echoDiv = document.createElement('div');
+    var echoCheck = document.createElement('input');
+    echoCheck.type = 'checkbox';
+    echoCheck.onchange = function() {
+        if (echoCheck.checked == true) {
+          this.echoCancel(echoOn)
+        } else {
+          this.echoCancel(echoOff)
+        }
+    }.bind(this);
+    var echoLabel = document.createTextNode("Echo Cancelation");
+    echoDiv.appendChild(echoCheck);
+    echoDiv.appendChild(echoLabel);
+    sessionDiv.appendChild(echoDiv);
 }
+
+SessionControl.prototype.echoCancel = function(config){
+    this.localMedia.refreshLocalVideo(config);
+}; 
 
 SessionControl.prototype.setVideo = function(video){
     if(this.hasOwnProperty("showVideo")){
@@ -816,6 +899,9 @@ var attachMediaStream = require('attachmediastream');
 var mockconsole = require('mockconsole');
 var SocketIoConnection = require('./socketioconnection');
 
+/* boolean for keeping track of whether SimpleWebRTC has already been initialize*/
+var firstInit = true; 
+
 function SimpleWebRTC(opts) {
     var self = this;
     var options = opts || {};
@@ -953,7 +1039,9 @@ function SimpleWebRTC(opts) {
 
     // check for readiness
     this.webrtc.on('localStream', function () {
+
         self.testReadiness();
+       
     });
 
     this.webrtc.on('message', function (payload) {
@@ -1176,12 +1264,21 @@ SimpleWebRTC.prototype.getEl = function (idOrEl) {
     }
 };
 
+SimpleWebRTC.prototype.refreshLocalVideo = function(media_config){
+    this.config.media = media_config;
+    this.stopLocalVideo();
+    this.startLocalVideo();
+}
+
 SimpleWebRTC.prototype.startLocalVideo = function () {
     var self = this;
+    console.log(this.config.media);
     this.webrtc.startLocalMedia(this.config.media, function (err, stream) {
         if (err) {
+             console.log("ERROR", err);
             self.emit('localMediaError', err);
         } else {
+            console.log("ATTACHING MEDIA STREAM");
             attachMediaStream(stream, self.getLocalVideoContainer(), self.config.localVideo);
         }
     });
@@ -1247,12 +1344,17 @@ SimpleWebRTC.prototype.stopScreenShare = function () {
 
 SimpleWebRTC.prototype.testReadiness = function () {
     var self = this;
-    if (this.sessionReady) {
-        if (!this.config.media.video && !this.config.media.audio) {
-            self.emit('readyToCall', self.connection.getSessionid());
-        } else if (this.webrtc.localStreams.length > 0) {
-            self.emit('readyToCall', self.connection.getSessionid());
+    if(firstInit){
+        if (this.sessionReady) {
+            if (!this.config.media.video && !this.config.media.audio) {
+                self.emit('readyToCall', self.connection.getSessionid());
+            } else if (this.webrtc.localStreams.length > 0) {
+                self.emit('readyToCall', self.connection.getSessionid());
+            }
+            firstInit = false;
         }
+    } else {
+         self.emit('updatedLocalStream', self.connection.getSessionid());
     }
 };
 
@@ -1567,12 +1669,24 @@ function initWebRTC(){
         // you can name it anything
         if (room) webrtc.joinRoom(room);
         chatWindow = new ChatWindow(document.body, webrtc);
-        localMedia.addVideoControls();
-        sessionControl = new SessionControl(localMedia.video, document.body);
+        localMedia.addVideoControls(webrtc);
+        sessionControl = new SessionControl(localMedia.video, document.body, localMedia);
         localMedia.video.addEventListener("click", function(e){
             console.log("setting video ", e.target);
             sessionControl.setVideo(e.target);
         });
+    });
+
+    webrtc.on('updatedLocalStream', function(){
+        localMedia.updatedLocalVideo();
+       /* localMedia.video.addEventListener("click", function(e){
+            console.log("setting video ", e.target);
+            sessionControl.setVideo(e.target);
+        });*/
+    });
+
+    webrtc.on('updatedLocalStream', function () {
+        console.log("UPDATED LOCAL STREAM");
     });
 
     webrtc.on('channelMessage', function (peer, label, data) {

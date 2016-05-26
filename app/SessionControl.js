@@ -1,6 +1,47 @@
-function SessionControl(localVideo, container){
+var echoOn =  {
+      audio: {
+        optional: [
+        {googAutoGainControl: true}, 
+        {googAutoGainControl2: true}, 
+        {googEchoCancellation: true},
+        {googEchoCancellation2: true},
+        {googNoiseSuppression: true},
+        {googNoiseSuppression2: true},
+        {googHighpassFilter: true},
+        {googTypingNoiseDetection: true},
+        {googAudioMirroring: true}
+        ]
+      },
+      video: {
+        optional: [
+        ]
+      }
+    };
+
+var echoOff = {
+      audio: {
+        optional: [
+        {googAutoGainControl: true}, 
+        {googAutoGainControl2: true}, 
+        {googEchoCancellation: true},
+        {googEchoCancellation2: true},
+        {googNoiseSuppression: true},
+        {googNoiseSuppression2: true},
+        {googHighpassFilter: true},
+        {googTypingNoiseDetection: true},
+        {googAudioMirroring: true}
+        ]
+      },
+      video: {
+        optional: [
+        ]
+      }
+    };
+
+function SessionControl(localVideo, container, localMedia){
 	this.video = localVideo;
 	this.createControlUI(container);
+    this.localMedia = localMedia;
 }
 
 SessionControl.prototype.createControlUI = function(container){
@@ -56,7 +97,27 @@ SessionControl.prototype.createControlUI = function(container){
     showFull.appendChild(fullText);
     sessionDiv.appendChild(showFull);
     container.appendChild(sessionDiv);
+
+/* Echo Cancellation Checkbox */
+    var echoDiv = document.createElement('div');
+    var echoCheck = document.createElement('input');
+    echoCheck.type = 'checkbox';
+    echoCheck.onchange = function() {
+        if (echoCheck.checked == true) {
+          this.echoCancel(echoOn)
+        } else {
+          this.echoCancel(echoOff)
+        }
+    }.bind(this);
+    var echoLabel = document.createTextNode("Echo Cancelation");
+    echoDiv.appendChild(echoCheck);
+    echoDiv.appendChild(echoLabel);
+    sessionDiv.appendChild(echoDiv);
 }
+
+SessionControl.prototype.echoCancel = function(config){
+    this.localMedia.refreshLocalVideo(config);
+}; 
 
 SessionControl.prototype.setVideo = function(video){
     if(this.hasOwnProperty("showVideo")){

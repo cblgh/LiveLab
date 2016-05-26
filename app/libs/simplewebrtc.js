@@ -5,6 +5,9 @@ var attachMediaStream = require('attachmediastream');
 var mockconsole = require('mockconsole');
 var SocketIoConnection = require('./socketioconnection');
 
+/* boolean for keeping track of whether SimpleWebRTC has already been initialize*/
+var firstInit = true; 
+
 function SimpleWebRTC(opts) {
     var self = this;
     var options = opts || {};
@@ -142,7 +145,9 @@ function SimpleWebRTC(opts) {
 
     // check for readiness
     this.webrtc.on('localStream', function () {
+
         self.testReadiness();
+       
     });
 
     this.webrtc.on('message', function (payload) {
@@ -365,12 +370,21 @@ SimpleWebRTC.prototype.getEl = function (idOrEl) {
     }
 };
 
+SimpleWebRTC.prototype.refreshLocalVideo = function(media_config){
+    this.config.media = media_config;
+    this.stopLocalVideo();
+    this.startLocalVideo();
+}
+
 SimpleWebRTC.prototype.startLocalVideo = function () {
     var self = this;
+    console.log(this.config.media);
     this.webrtc.startLocalMedia(this.config.media, function (err, stream) {
         if (err) {
+             console.log("ERROR", err);
             self.emit('localMediaError', err);
         } else {
+            console.log("ATTACHING MEDIA STREAM");
             attachMediaStream(stream, self.getLocalVideoContainer(), self.config.localVideo);
         }
     });
@@ -436,12 +450,17 @@ SimpleWebRTC.prototype.stopScreenShare = function () {
 
 SimpleWebRTC.prototype.testReadiness = function () {
     var self = this;
-    if (this.sessionReady) {
-        if (!this.config.media.video && !this.config.media.audio) {
-            self.emit('readyToCall', self.connection.getSessionid());
-        } else if (this.webrtc.localStreams.length > 0) {
-            self.emit('readyToCall', self.connection.getSessionid());
+    if(firstInit){
+        if (this.sessionReady) {
+            if (!this.config.media.video && !this.config.media.audio) {
+                self.emit('readyToCall', self.connection.getSessionid());
+            } else if (this.webrtc.localStreams.length > 0) {
+                self.emit('readyToCall', self.connection.getSessionid());
+            }
+            firstInit = false;
         }
+    } else {
+         self.emit('updatedLocalStream', self.connection.getSessionid());
     }
 };
 

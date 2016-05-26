@@ -104,12 +104,24 @@ function initWebRTC(){
         // you can name it anything
         if (room) webrtc.joinRoom(room);
         chatWindow = new ChatWindow(document.body, webrtc);
-        localMedia.addVideoControls();
-        sessionControl = new SessionControl(localMedia.video, document.body);
+        localMedia.addVideoControls(webrtc);
+        sessionControl = new SessionControl(localMedia.video, document.body, localMedia);
         localMedia.video.addEventListener("click", function(e){
             console.log("setting video ", e.target);
             sessionControl.setVideo(e.target);
         });
+    });
+
+    webrtc.on('updatedLocalStream', function(){
+        localMedia.updatedLocalVideo();
+       /* localMedia.video.addEventListener("click", function(e){
+            console.log("setting video ", e.target);
+            sessionControl.setVideo(e.target);
+        });*/
+    });
+
+    webrtc.on('updatedLocalStream', function () {
+        console.log("UPDATED LOCAL STREAM");
     });
 
     webrtc.on('channelMessage', function (peer, label, data) {

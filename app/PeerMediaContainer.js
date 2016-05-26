@@ -14,6 +14,7 @@ function PeerMediaContainer(id, video, webrtc, dashboard){
 	    video.id = 'video_' + id;
 	    video.volume = 0.0;
 	    this.createPeerWindow();
+      this.webrtc = webrtc;
 	 }
 	 
     this.createAudioSelector();
@@ -96,14 +97,35 @@ PeerMediaContainer.prototype.createVolumeControl = function() {
 
 }
 /* for local stream only; create video controls once video has been added */
-PeerMediaContainer.prototype.addVideoControls = function(){
+PeerMediaContainer.prototype.addVideoControls = function(webrtc){
 	if (!('video' in this)){
-		this.video = this.videoDiv.getElementsByTagName('video')[0];
-		console.log(this.video);
-		this.video.volume = 0.0;
+		 this.video = this.videoDiv.getElementsByTagName('video')[0];
+    this.video.volume = 0.0;
 		this.createPeerWindow();
 	}
+  this.webrtc = webrtc;
 };
+
+PeerMediaContainer.prototype.removeLocalVideo = function(){
+  while (this.videoDiv.hasChildNodes()) {
+    this.videoDiv.removeChild(this.videoDiv.lastChild);
+  }
+};
+
+PeerMediaContainer.prototype.refreshLocalVideo = function(config){
+  this.removeLocalVideo();
+  this.webrtc.refreshLocalVideo(config);
+};
+
+PeerMediaContainer.prototype.updatedLocalVideo = function(){
+  console.log("UPDATING LOCAL VIDEO");
+  console.log(this.videoDiv);
+  this.video = this.videoDiv.getElementsByTagName('video')[0];
+  console.log(this.video);
+/*  console.log("UPDATING LOCAL VIDEO");
+  this.video = this.videoDiv.getElementsByTagName('video')[0];
+    this.video.volume = 0.0;*/
+}
 
 PeerMediaContainer.prototype.destroy = function(){
 	this.dashboard.removeChild(this.mediaContainer);
