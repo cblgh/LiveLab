@@ -25,6 +25,7 @@ var peers = {};
 // state variable used to determine if this client has received
 window.hasStateInfo = false;
 window.localId = "";
+window.name = "main";
 
 // structure of state info object:
 // peers: list of peers, each peer has an id and a nick as following:

@@ -7,6 +7,19 @@ var previousState = {};
 var RESIZE_WIDTH = 800;
 var RESIZE_HEIGHT = 600;
 
+ setTimeout(function() {
+      var goBack  = window.open("", "main").focus();
+      console.log("go back", "self.showMixer.opener.name", goBack);
+  }, 10000);
+
+document.addEventListener("keydown", function(e) {
+  console.log(e, e.key, e.which, e.which === 83);
+  if (e.which === 83) {
+    console.log("switch to main pls");
+    window.open("", "main");
+  }
+});
+
 document.addEventListener('sourcesAdded', function(e){
     console.log("init vid");
     canvas = document.createElement('canvas');

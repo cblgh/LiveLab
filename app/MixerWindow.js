@@ -1,5 +1,4 @@
 var util = require("./util.js");
-console.log("HELP ME");
 
 var NUM_INPUTS = 3;
 var blendOptions = ["normal", "lighten", "darken", "multiply", "average", "add", "subtract", "divide", "difference", "negation", "exclusion", "screen", "lineardodge", "phoenix", "linearburn", "hue", "saturation", "color", "luminosity", "darkercolor", "lightercolor", "overlay", "softlight", "hardlight", "colordodge", "colorburn", "linearlight", "vividlight", "pinlight", "hardmix", "reflect", "glow"];
@@ -12,7 +11,7 @@ function MixerWindow(video, peers, webrtc, autoFullscreen) {
     this.showMixer = window.open("https://" + ip + "mixer.html", 'Mixer_'+Math.random()*200, 'popup');
     this.webrtc = webrtc;
     this.video = video;
-    this.mixerState = {};
+    this.mixerState = {}; 
     this.mixerState.effects = [];
     this.streams = {};
     console.log("LOCAL STREAM", webrtc.webrtc.localStreams[0]);
@@ -20,6 +19,8 @@ function MixerWindow(video, peers, webrtc, autoFullscreen) {
     this.streams[str.id] = {src: video.src, stream: str, peer_id: "local"};
     this.mixerState.streams = this.streams;
     this.mixerState.sources = [];
+   
+
     for (var i = 0; i < NUM_INPUTS; i++){
         this.mixerState.sources[i] = {};
     }
@@ -72,7 +73,6 @@ function MixerWindow(video, peers, webrtc, autoFullscreen) {
         }
         this.remoteMixerEvent("updateStreams", this.streams);
     }.bind(this));
-
 }
 
 MixerWindow.prototype.mixerEvent = function(type, data){

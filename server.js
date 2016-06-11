@@ -4,8 +4,8 @@
 //  ToDO: switch to using simpler OSC library following example: https://github.com/toddtreece/osc-examples/blob/master/socketio.js
 //--------------------------------------------------
 */
-var osc = require("osc"),
-    WebSocket = require("ws")
+//var osc = require("osc"),
+   var WebSocket = require("ws")
     oscMin = require("osc-min");
 var https = require('https');
 var fs = require('fs');
@@ -33,7 +33,7 @@ var httpsServer = https.createServer(options, function (request, response) {
     }).resume();
 }).listen(8000);
 
-var wss = new WebSocket.Server({
+/*var wss = new WebSocket.Server({
     //port: 8081
     server: httpsServer
 });
@@ -79,7 +79,7 @@ wss.on("connection", function (ws) {
               //  console.log("checking port " + message.port);
 
               /*PORT SCANNER IS NOT WORKING TO CORRECTLY IDENTIFY PORTS CREATED USING osc.UDPPort
-              temporary fix is that previously open ports are stored in ports{} object*/
+              temporary fix is that previously open ports are stored in ports{} object
                 portscanner.checkPortStatus(parseInt(message.port), '127.0.0.1', function(error, status) {
                  // Status is 'open' if currently in use or 'closed' if available
                    if(ports.hasOwnProperty(message.port)){
@@ -194,4 +194,4 @@ function error() {
 // Uncomment the next line to test exiting normally
 //setTimeout(function(){process.exit(3)}, 2000);
 
-// Type Ctrl-C to test forced exit
+// Type Ctrl-C to test forced exit*/
