@@ -134,6 +134,7 @@ function initWebRTC(){
             console.log("setting video ", e.target);
             sessionControl.setVideo(e.target);
         });
+        sessionControl.openMixer();
     });
 
     webrtc.on('localScreenAdded', function (el) {

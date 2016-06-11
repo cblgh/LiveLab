@@ -49,6 +49,10 @@ document.addEventListener('blend', function(e){
    // blend.update();
 });
 
+document.addEventListener('fullscreen', function(e){
+    toggleFullscreen();
+});
+
 document.addEventListener('contrast', function(e){
   console.log(e.detail);
   if("contrast" in e.detail){
@@ -156,8 +160,9 @@ function updateEffectsFromState(state){
 function toggleFullscreen(){
     var isFirefox = typeof InstallTrigger !== 'undefined';
     var isChrome = !!window.chrome && !!window.chrome.webstore;
+    console.log("toggle fullscreen");
     canvas.focus();
-    if (!isFullScreen) {
+   // if (!isFullScreen) {
         if (isFirefox == true) {
             canvas.mozRequestFullScreen();
         }
@@ -165,13 +170,13 @@ function toggleFullscreen(){
             canvas.webkitRequestFullScreen();
         }
         isFullScreen = true;
-    } else {
-        if (isFirefox == true) {
-            canvas.mozCancelFullscreen();
-        }
-        if (isChrome == true) {
-            canvas.webkitExitFullscreen();
-        }
-        isFullScreen = false;
-    }   
+    // } else {
+    //     if (isFirefox == true) {
+    //         canvas.mozCancelFullscreen();
+    //     }
+    //     if (isChrome == true) {
+    //         canvas.webkitExitFullscreen();
+    //     }
+    //     isFullScreen = false;
+    // }   
 }

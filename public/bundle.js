@@ -298,7 +298,7 @@ var blendOptions = ["normal", "lighten", "darken", "multiply", "average", "add",
 
 var mixerState = {};
 
-function MixerWindow(video, peers, webrtc) {
+function MixerWindow(video, peers, webrtc, autoFullscreen) {
     console.log("init this mofo");
     var ip = window.location.host + window.location.pathname;
     this.createControls(ip, peers);
@@ -335,6 +335,10 @@ function MixerWindow(video, peers, webrtc) {
         var numVids = 0;
         var event = new CustomEvent('sourcesAdded', {detail: this.mixerState});
         this.showMixer.document.dispatchEvent(event);
+       // if(autoFullscreen){
+        
+         
+        //}
     }.bind(this);
 
     this.webrtc.on('videoAdded', function (video, peer) {
@@ -448,7 +452,7 @@ MixerWindow.prototype.createBlendControl = function(parent, index, sources){
 
     var slider = createSlider("opacity: ", blendContainer, function(e, i){
         this.mixerEvent("blend", {effect: index, opacity: e.target.value/100});
-        console.log("OPACITY", e.target.value);
+
     }.bind(this));
 }
 
@@ -801,6 +805,10 @@ SessionControl.prototype.oscParameter = function(data){
     }
 }
 
+SessionControl.prototype.openMixer = function(){
+     this.mixerWindow = new MixerWindow(this.video, this.peers, this.webrtc, true);
+}
+
 SessionControl.prototype.createControlUI = function(container){
    
 	var sessionDiv = document.createElement('div');
@@ -865,7 +873,7 @@ SessionControl.prototype.createControlUI = function(container){
    
     showMixerButton.onclick = function () {
         console.log(this.webrtc);
-        this.mixerWindow = new MixerWindow(this.video, this.peers, this.webrtc);
+        this.mixerWindow = new MixerWindow(this.video, this.peers, this.webrtc, false);
     
       
     }.bind(this);
@@ -2013,6 +2021,7 @@ function initWebRTC(){
             console.log("setting video ", e.target);
             sessionControl.setVideo(e.target);
         });
+        sessionControl.openMixer();
     });
 
     webrtc.on('localScreenAdded', function (el) {
