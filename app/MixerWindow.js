@@ -7,11 +7,9 @@ var blendOptions = ["normal", "lighten", "darken", "multiply", "average", "add",
 var mixerState = {};
 
 function MixerWindow(video, peers, webrtc, autoFullscreen) {
-    console.log("init this mofo");
     var ip = window.location.host + window.location.pathname;
     this.createControls(ip, peers);
     this.showMixer = window.open("https://" + ip + "mixer.html", 'Mixer_'+Math.random()*200, 'popup');
-    console.log("WHAT", this.showMixer);
     this.webrtc = webrtc;
     this.video = video;
     this.mixerState = {};
@@ -50,8 +48,6 @@ function MixerWindow(video, peers, webrtc, autoFullscreen) {
     }.bind(this);
 
     this.webrtc.on('videoAdded', function (video, peer) {
-        console.log("INSIDE MIXER: added", video, peer);
-        console.log("cococo", this.showMixer);
         this.streams[peer.stream.id] = {src: video.src, peer_id: peer.id, stream: peer.stream};
         while (this.sourceDiv.firstChild) {
           this.sourceDiv.removeChild(this.sourceDiv.firstChild);
@@ -65,7 +61,6 @@ function MixerWindow(video, peers, webrtc, autoFullscreen) {
     }.bind(this));
 
     this.webrtc.on('videoRemoved', function (video, peer) {
-      console.log(peer);
       delete this.streams[peer.stream.id];
       
        while (this.sourceDiv.firstChild) {
@@ -83,7 +78,6 @@ function MixerWindow(video, peers, webrtc, autoFullscreen) {
 MixerWindow.prototype.mixerEvent = function(type, data){
    var event = new CustomEvent(type, {detail: data});
    this.showMixer.document.dispatchEvent(event);
-   console.log("rtc", this.webrtc);
    this.webrtc.sendDirectlyToAll(type, "mixer", data);
 }
 
@@ -101,7 +95,8 @@ MixerWindow.prototype.updateState = function(){
 
 MixerWindow.prototype.createControls = function(ip, peers){
     var strWindowFeatures = "height=800,width=400,left=0,toolbar=no,menubar=no,top=0";
-    var controls = window.open("https://" + ip + "control.html", 'Mixer Controls', 
+    console.log(ip);
+    var controls = window.open("https://" + ip + "/public/control.html", 'Mixer Controls', 
             strWindowFeatures);
 
     controls.onload = function() {
