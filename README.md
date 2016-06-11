@@ -1,6 +1,6 @@
 #LiveLab
 
-LiveLab is a proposal for an open source, browser-based toolkit for networked performance. The virtual collaboration space uses a peer-to-peer mesh network to share video, audio, and data streams between individuals and venues. LiveLab is based on WebRTC, and thus can be used by anyone with a web browser. The [initial prototype](https://ojack.github.io/LiveLab/public/) also allows participants to route any data stream broadcast over OSC (such as Kinect skeleton or sensor data) to remote collaborators.
+LiveLab is a proposal for an open source, browser-based toolkit for networked performance. The virtual collaboration space uses a peer-to-peer mesh network to share video, audio, and data streams between individuals and venues. LiveLab is based on WebRTC, and thus can be used by anyone with a web browser. The [initial prototype](https://cblgh.github.io/LiveLab/public/) also allows participants to route any data stream broadcast over OSC (such as Kinect skeleton or sensor data) to remote collaborators.
 
 Currently being developed as part of [Interactivos?'16 Possible Worlds. Creative and Collaborative Uses of Digital Technologies at MediaLab-Prado](http://comunidad.medialab-prado.es/en/groups/livelab)
 #####To run:
